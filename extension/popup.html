@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScrollMine</title>
+  <!-- ScrollMine API -->
+  <script src="supabase.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 350px;
+      min-height: 400px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .container {
+      padding: 20px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .logo-icon {
+      width: 24px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .content {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .login-section {
+      display: none;
+      margin-bottom: 16px;
+    }
+
+    .login-section.active {
+      display: block;
+    }
+
+    .login-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      display: block;
+      opacity: 0.9;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 12px;
+      font-family: inherit;
+    }
+
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .form-input:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .page-info {
+      margin-bottom: 16px;
+    }
+
+    .page-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .page-url {
+      font-size: 11px;
+      opacity: 0.7;
+      word-break: break-all;
+      margin-bottom: 12px;
+    }
+
+    .snippet-section {
+      margin-bottom: 16px;
+    }
+
+    .snippet-label {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      opacity: 0.9;
+    }
+
+    .snippet-textarea {
+      width: 100%;
+      min-height: 60px;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 12px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .snippet-textarea::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .snippet-textarea:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .tags-section {
+      margin-bottom: 16px;
+    }
+
+    .tags-label {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      opacity: 0.9;
+    }
+
+    .tags-input {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 12px;
+      font-family: inherit;
+    }
+
+    .tags-input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .tags-input:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .status {
+      text-align: center;
+      font-size: 11px;
+      opacity: 0.8;
+      margin-top: 8px;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+
+    .success {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+
+    .user-info {
+      display: none;
+      margin-bottom: 12px;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      font-size: 11px;
+    }
+
+    .user-info.active {
+      display: block;
+    }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 10px;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-top: 4px;
+    }
+
+    .logout-btn:hover {
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">📚</div>
+        <span class="title">ScrollMine</span>
+      </div>
+      <div class="subtitle">Capture & Transform Content</div>
+    </div>
+
+    <div class="content">
+      <!-- Login Section -->
+      <div class="login-section" id="loginSection">
+        <div class="login-title">Sign in to ScrollMine</div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="emailInput" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="passwordInput" placeholder="Enter your password">
+        </div>
+        <div class="actions">
+          <button class="btn btn-secondary" id="openDashboard">Open Dashboard</button>
+          <button class="btn btn-primary" id="loginButton">Sign In</button>
+        </div>
+      </div>
+
+      <!-- User Info Section -->
+      <div class="user-info" id="userInfo">
+        <div>Logged in as: <span id="userEmail"></span></div>
+        <button class="logout-btn" id="logoutButton">Sign Out</button>
+      </div>
+
+      <!-- Content Section -->
+      <div id="contentSection" style="display: none;">
+        <div class="page-info">
+          <div class="page-title" id="pageTitle">Loading...</div>
+          <div class="page-url" id="pageUrl">Loading...</div>
+        </div>
+
+        <div class="snippet-section">
+          <div class="snippet-label">Selected Text (Optional)</div>
+          <textarea 
+            class="snippet-textarea" 
+            id="snippetText" 
+            placeholder="Highlight text on the page to capture it here..."
+          ></textarea>
+        </div>
+
+        <div class="tags-section">
+          <div class="tags-label">Tags (Optional)</div>
+          <input 
+            type="text" 
+            class="tags-input" 
+            id="tagsInput" 
+            placeholder="Enter tags separated by commas..."
+          />
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-secondary" id="openDashboardFromContent">Dashboard</button>
+          <button class="btn btn-primary" id="saveButton">Save Content</button>
+        </div>
+      </div>
+
+      <div class="status" id="status"></div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <div id="loadingText">Loading...</div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
