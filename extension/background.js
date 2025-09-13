@@ -24,6 +24,8 @@ chrome.action.onClicked.addListener((tab) => {
 
 // Listen for messages from content scripts and popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log('Background script received message:', message);
+  
   if (message.action === 'authenticate') {
     handleAuthentication(message.token);
   } else if (message.action === 'logout') {
@@ -31,6 +33,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === 'getAuthStatus') {
     getAuthStatus().then(sendResponse);
     return true; // Keep message channel open for async response
+  } else if (message.action === 'saveContent') {
+    console.log('Handling saveContent request');
+    handleSaveContent(message.data).then(sendResponse);
+    return true; // Keep message channel open for async response
+  } else if (message.action === 'openPopup') {
+    handleOpenPopup();
   }
 });
 
@@ -144,3 +152,74 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     }
   }
 });
+
+// Handle content saving from floating bubble
+async function handleSaveContent(data) {
+  console.log('handleSaveContent called with data:', data);
+  
+  try {
+    // Check if user is authenticated by checking for Supabase session
+    const sessionResult = await chrome.storage.local.get(['supabase_session']);
+    const session = sessionResult.supabase_session;
+    
+    console.log('Session check:', { hasSession: !!session, expiresAt: session?.expires_at });
+    
+    if (session && session.expires_at && new Date(session.expires_at) > new Date()) {
+      console.log('User is authenticated, saving to Supabase');
+      // User is authenticated, save to Supabase
+      const response = await fetch('https://vyxwxkexvveglzsxlwyc.supabase.co/rest/v1/saved_items', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eHd4a2V4dnZlZ2x6c3hsd3ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2MTEzMTQsImV4cCI6MjA3MjE4NzMxNH0.M1BkwS_2PoH4wGwLQtpCKcvMyvqgpIrkn3H3R1j6lxs',
+          'Authorization': `Bearer ${session.access_token}`,
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify({
+          user_id: session.user.id,
+          url: data.url,
+          title: data.title,
+          snippet: data.snippet,
+          content: data.content,
+          tags: data.tags,
+          type: data.type
+        })
+      });
+
+      if (response.ok) {
+        return { success: true };
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || errorData.error || 'Failed to save to server');
+      }
+    } else {
+      console.log('User not authenticated, saving to local storage');
+      // User not authenticated, save to local storage
+      const items = await chrome.storage.local.get(['savedItems']);
+      const savedItems = items.savedItems || [];
+      
+      const newItem = {
+        ...data,
+        id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        created_at: new Date().toISOString(),
+        is_favorite: false,
+        usage_count: 0
+      };
+      
+      console.log('Saving item to local storage:', newItem);
+      savedItems.unshift(newItem);
+      await chrome.storage.local.set({ savedItems });
+      
+      console.log('Successfully saved to local storage');
+      return { success: true };
+    }
+  } catch (error) {
+    console.error('Error saving content:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Handle opening popup programmatically
+function handleOpenPopup() {
+  chrome.action.openPopup();
+}

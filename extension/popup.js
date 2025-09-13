@@ -1,5 +1,6 @@
 // Configuration - Using Supabase directly
 const DASHBOARD_URL = 'http://localhost:3000/dashboard';
+const LOCAL_DASHBOARD_URL = 'http://localhost:3000/local-dashboard';
 
 // DOM elements
 const loginSection = document.getElementById('loginSection');
@@ -13,6 +14,10 @@ const userEmail = document.getElementById('userEmail');
 const openDashboard = document.getElementById('openDashboard');
 const openDashboardFromContent = document.getElementById('openDashboardFromContent');
 
+// Mode toggle elements
+const continueModeBtn = document.getElementById('continueMode');
+const signInModeBtn = document.getElementById('signInMode');
+
 const pageTitleEl = document.getElementById('pageTitle');
 const pageUrlEl = document.getElementById('pageUrl');
 const snippetTextEl = document.getElementById('snippetText');
@@ -22,17 +27,68 @@ const statusEl = document.getElementById('status');
 const loadingEl = document.getElementById('loading');
 const loadingText = document.getElementById('loadingText');
 
+// Settings elements
+const bubbleEnabledCheckbox = document.getElementById('bubbleEnabled');
+
 // State
 let currentTab = null;
 let selectedText = '';
 let pageContent = '';
 let isAuthenticated = false;
+let isLocalMode = false;
+let currentMode = 'continue'; // 'continue' or 'signin'
+
+// Local Storage Keys
+const LOCAL_STORAGE_KEYS = {
+  SAVED_ITEMS: 'scrollmine_saved_items',
+  USER_PREFERENCES: 'scrollmine_user_preferences'
+};
 
 // Initialize popup
 document.addEventListener('DOMContentLoaded', async () => {
+  // Wait for ScrollMineSupabase to be available
+  await waitForScrollMineSupabase();
   await initializePopup();
   setupEventListeners();
+  initializeSettings();
+  setupModeToggle();
+  
+  // Test Supabase connection
+  testSupabaseConnection();
 });
+
+// Test function to check Supabase connectivity
+async function testSupabaseConnection() {
+  if (!window.ScrollMineSupabase) {
+    console.log('ScrollMineSupabase not available for testing');
+    return;
+  }
+  
+  try {
+    console.log('Testing Supabase connection...');
+    const result = await window.ScrollMineSupabase.checkAuth();
+    console.log('Supabase connection test result:', result);
+  } catch (error) {
+    console.error('Supabase connection test failed:', error);
+  }
+}
+
+// Wait for ScrollMineSupabase to be available
+async function waitForScrollMineSupabase() {
+  let attempts = 0;
+  const maxAttempts = 50; // 5 seconds max wait
+  
+  while (!window.ScrollMineSupabase && attempts < maxAttempts) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    attempts++;
+  }
+  
+  if (!window.ScrollMineSupabase) {
+    console.warn('ScrollMineSupabase not loaded after 5 seconds, continuing in local mode');
+    // Set current mode to continue if Supabase is not available
+    currentMode = 'continue';
+  }
+}
 
 async function initializePopup() {
   try {
@@ -74,34 +130,122 @@ async function initializePopup() {
 
 async function checkAuthAndUpdateUI() {
   try {
+    // Check if ScrollMineSupabase is available
+    if (!window.ScrollMineSupabase) {
+      console.log('ScrollMineSupabase not available, using local mode');
+      updateUIForCurrentMode();
+      return;
+    }
+    
     const { isAuthenticated: authStatus, session, error } = await window.ScrollMineSupabase.checkAuth();
     isAuthenticated = authStatus;
     
     if (error) {
       console.error('Auth check error:', error);
-      showLoginUI();
+      updateUIForCurrentMode();
     } else if (isAuthenticated && session) {
       showAuthenticatedUI(session);
     } else {
-      showLoginUI();
+      updateUIForCurrentMode();
     }
   } catch (error) {
     console.error('Error checking auth:', error);
+    updateUIForCurrentMode();
+  }
+}
+
+function setupModeToggle() {
+  continueModeBtn.addEventListener('click', () => {
+    currentMode = 'continue';
+    updateModeToggleUI();
+    updateUIForCurrentMode();
+  });
+
+  signInModeBtn.addEventListener('click', () => {
+    currentMode = 'signin';
+    updateModeToggleUI();
+    updateUIForCurrentMode();
+  });
+}
+
+function updateModeToggleUI() {
+  if (currentMode === 'continue') {
+    continueModeBtn.classList.add('active');
+    signInModeBtn.classList.remove('active');
+  } else {
+    signInModeBtn.classList.add('active');
+    continueModeBtn.classList.remove('active');
+  }
+}
+
+function updateUIForCurrentMode() {
+  if (currentMode === 'continue') {
+    showLocalModeUI();
+  } else {
     showLoginUI();
   }
 }
 
+function showLocalModeUI() {
+  isLocalMode = true;
+  loginSection.classList.remove('active');
+  userInfo.classList.remove('active');
+  contentSection.style.display = 'block';
+  
+  // Remove existing local mode indicator
+  const existingIndicator = document.querySelector('.local-mode-indicator');
+  if (existingIndicator) {
+    existingIndicator.remove();
+  }
+  
+  // Update UI for local mode
+  const localModeIndicator = document.createElement('div');
+  localModeIndicator.className = 'local-mode-indicator';
+  localModeIndicator.innerHTML = `
+    <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 4px; padding: 8px; margin-bottom: 12px; font-size: 12px; color: #92400e;">
+      <strong>Local Mode:</strong> Content will be saved to your browser. 
+      <a href="#" id="signUpLink" style="color: #d97706; text-decoration: underline;">Sign up</a> to sync across devices.
+    </div>
+  `;
+  
+  // Insert at the top of content section
+  contentSection.insertBefore(localModeIndicator, contentSection.firstChild);
+  
+  // Add event listener for sign up link
+  document.getElementById('signUpLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: 'http://localhost:3000' });
+  });
+  
+  showStatus('Local mode - content saved to browser', 'info');
+}
+
 function showLoginUI() {
+  isLocalMode = false;
   loginSection.classList.add('active');
   userInfo.classList.remove('active');
   contentSection.style.display = 'none';
+  
+  // Remove local mode indicator if present
+  const localModeIndicator = document.querySelector('.local-mode-indicator');
+  if (localModeIndicator) {
+    localModeIndicator.remove();
+  }
+  
   showStatus('Please sign in to use ScrollMine', 'error');
 }
 
 function showAuthenticatedUI(session) {
+  isLocalMode = false;
   loginSection.classList.remove('active');
   userInfo.classList.add('active');
   contentSection.style.display = 'block';
+  
+  // Remove local mode indicator if present
+  const localModeIndicator = document.querySelector('.local-mode-indicator');
+  if (localModeIndicator) {
+    localModeIndicator.remove();
+  }
   
   // Show user email
   if (session.user && session.user.email) {
@@ -120,11 +264,13 @@ function setupEventListeners() {
 
   // Open dashboard buttons
   openDashboard.addEventListener('click', () => {
-    chrome.tabs.create({ url: DASHBOARD_URL });
+    const url = isLocalMode ? LOCAL_DASHBOARD_URL : DASHBOARD_URL;
+    chrome.tabs.create({ url });
   });
 
   openDashboardFromContent.addEventListener('click', () => {
-    chrome.tabs.create({ url: DASHBOARD_URL });
+    const url = isLocalMode ? LOCAL_DASHBOARD_URL : DASHBOARD_URL;
+    chrome.tabs.create({ url });
   });
 
   // Save button
@@ -161,14 +307,25 @@ async function handleLogin() {
     return;
   }
 
+  // Check if ScrollMineSupabase is available
+  if (!window.ScrollMineSupabase) {
+    showStatus('Sign-in service not available. Please use "Continue" mode or refresh the extension.', 'error');
+    return;
+  }
+
   setLoading(true, 'Signing in...');
   loginButton.disabled = true;
 
   try {
-    const { data, error } = await window.ScrollMineSupabase.signIn({ email, password });
+    console.log('Attempting login with:', { email, password: '***' });
+    const result = await window.ScrollMineSupabase.signIn({ email, password });
+    console.log('Login result:', result);
+    
+    const { data, error } = result;
     
     if (error) {
-      throw new Error(error.message || 'Login failed');
+      console.error('Login error from Supabase:', error);
+      throw new Error(error.message || error.error_description || 'Login failed');
     }
 
     if (data && data.user) {
@@ -180,6 +337,7 @@ async function handleLogin() {
       emailInput.value = '';
       passwordInput.value = '';
     } else {
+      console.error('No user data in response:', data);
       throw new Error('Login failed - no user data received');
     }
   } catch (error) {
@@ -193,9 +351,14 @@ async function handleLogin() {
 
 async function handleLogout() {
   try {
+    if (!window.ScrollMineSupabase) {
+      showStatus('Sign-out service not available. Please refresh the extension.', 'error');
+      return;
+    }
+    
     await window.ScrollMineSupabase.signOut();
     isAuthenticated = false;
-    showLoginUI();
+    updateUIForCurrentMode();
     showStatus('Successfully signed out', 'success');
   } catch (error) {
     console.error('Logout error:', error);
@@ -206,11 +369,6 @@ async function handleLogout() {
 async function handleSaveContent() {
   if (!currentTab) {
     showStatus('No active tab found', 'error');
-    return;
-  }
-
-  if (!isAuthenticated) {
-    showStatus('Please sign in first', 'error');
     return;
   }
 
@@ -232,21 +390,39 @@ async function handleSaveContent() {
   saveButtonEl.disabled = true;
 
   try {
-    // Save directly to Supabase
-    const result = await window.ScrollMineSupabase.saveItem(content);
-    
-    if (result.success) {
-      showStatus('Content saved successfully!', 'success');
-      // Clear form
-      snippetTextEl.value = '';
-      tagsInputEl.value = '';
+    if (isAuthenticated) {
+      // Save to Supabase
+      const result = await window.ScrollMineSupabase.saveItem(content);
       
-      // Update status after a delay
-      setTimeout(() => {
-        showStatus('Ready to save more content', 'success');
-      }, 2000);
+      if (result.success) {
+        showStatus('Content saved successfully!', 'success');
+        // Clear form
+        snippetTextEl.value = '';
+        tagsInputEl.value = '';
+        
+        // Update status after a delay
+        setTimeout(() => {
+          showStatus('Ready to save more content', 'success');
+        }, 2000);
+      } else {
+        throw new Error('Failed to save content');
+      }
     } else {
-      throw new Error('Failed to save content');
+      // Save to localStorage
+      const savedItem = saveToLocalStorage(content);
+      if (savedItem) {
+        showStatus('Content saved locally!', 'success');
+        // Clear form
+        snippetTextEl.value = '';
+        tagsInputEl.value = '';
+        
+        // Update status after a delay
+        setTimeout(() => {
+          showStatus('Ready to save more content (local mode)', 'success');
+        }, 2000);
+      } else {
+        throw new Error('Failed to save content locally');
+      }
     }
   } catch (error) {
     console.error('Error saving content:', error);
@@ -254,13 +430,44 @@ async function handleSaveContent() {
     if (error.message.includes('No authenticated session')) {
       showStatus('Session expired. Please sign in again.', 'error');
       isAuthenticated = false;
-      showLoginUI();
+      updateUIForCurrentMode();
     } else {
       showStatus(`Error: ${error.message}`, 'error');
     }
   } finally {
     setLoading(false);
     saveButtonEl.disabled = false;
+  }
+}
+
+// Local Storage Functions
+function saveToLocalStorage(item) {
+  try {
+    const items = getLocalSavedItems();
+    const newItem = {
+      ...item,
+      id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      created_at: new Date().toISOString(),
+      is_favorite: false,
+      usage_count: 0
+    };
+    
+    items.unshift(newItem);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.SAVED_ITEMS, JSON.stringify(items));
+    return newItem;
+  } catch (error) {
+    console.error('Error saving to localStorage:', error);
+    return null;
+  }
+}
+
+function getLocalSavedItems() {
+  try {
+    const items = localStorage.getItem(LOCAL_STORAGE_KEYS.SAVED_ITEMS);
+    return items ? JSON.parse(items) : [];
+  } catch (error) {
+    console.error('Error reading from localStorage:', error);
+    return [];
   }
 }
 
@@ -309,3 +516,42 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     snippetTextEl.value = selectedText;
   }
 });
+
+// Settings Functions
+async function initializeSettings() {
+  try {
+    // Load bubble settings
+    const result = await chrome.storage.local.get(['bubbleEnabled']);
+    bubbleEnabledCheckbox.checked = result.bubbleEnabled !== false; // Default to enabled
+    
+    // Add event listener for bubble toggle
+    bubbleEnabledCheckbox.addEventListener('change', handleBubbleToggle);
+  } catch (error) {
+    console.error('Error initializing settings:', error);
+  }
+}
+
+async function handleBubbleToggle() {
+  try {
+    const enabled = bubbleEnabledCheckbox.checked;
+    await chrome.storage.local.set({ bubbleEnabled: enabled });
+    
+    // Notify all tabs to show/hide bubble
+    const tabs = await chrome.tabs.query({});
+    for (const tab of tabs) {
+      try {
+        await chrome.tabs.sendMessage(tab.id, {
+          action: 'toggleBubble',
+          enabled: enabled
+        });
+      } catch (error) {
+        // Tab might not have content script, ignore
+      }
+    }
+    
+    showStatus(enabled ? 'Floating bubble enabled' : 'Floating bubble disabled', 'success');
+  } catch (error) {
+    console.error('Error toggling bubble:', error);
+    showStatus('Error updating bubble settings', 'error');
+  }
+}

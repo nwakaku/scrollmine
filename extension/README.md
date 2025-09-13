@@ -1,158 +1,234 @@
 # ScrollMine Browser Extension
 
-A browser extension that captures valuable content from your daily online surfing and transforms it into social media posts.
+A powerful browser extension that captures content from web pages and saves it to ScrollMine for AI-powered content generation.
 
 ## Features
 
-- 📝 Capture selected text from any webpage
-- 🏷️ Add custom tags to organize your content
-- 💾 Save content directly to your ScrollMine dashboard
-- 🔐 Secure authentication with Supabase
-- 🎨 Beautiful, modern UI
+### 🔐 **Authentication Modes**
+
+#### **Authenticated Mode**
+- Full access to ScrollMine dashboard
+- Content synced across devices
+- AI content generation
+- Advanced features and analytics
+
+#### **Local Mode** (NEW!)
+- **No signup required** - start using immediately
+- Content saved to browser's localStorage
+- Full content capture and organization
+- Seamless upgrade path to full account
+- Data migration when you sign up
+
+### 📱 **Core Functionality**
+
+- **Smart Content Capture**: Automatically extracts page title, URL, and content
+- **Text Selection**: Capture specific text snippets by highlighting
+- **Content Type Detection**: Automatically detects articles, tweets, videos, etc.
+- **Tagging System**: Add custom tags for better organization
+- **Cross-Platform Support**: Works on Twitter, LinkedIn, YouTube, Medium, and more
 
 ## Installation
 
-### For Development
+### Development Setup
 
-1. **Load the extension in Chrome:**
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd scrollmine/extension
+   ```
+
+2. **Load the extension in Chrome**
    - Open Chrome and go to `chrome://extensions/`
    - Enable "Developer mode" (toggle in top right)
    - Click "Load unpacked"
-   - Select the `extension` folder from this project
+   - Select the `extension` folder
 
-2. **Start the dashboard:**
-   ```bash
-   npm run dev
-   ```
+3. **Configure the extension**
+   - Update `popup.js` with your ScrollMine dashboard URL
+   - Set `DASHBOARD_URL` to your production URL when ready
 
-3. **Log in to your dashboard:**
-   - Go to `http://localhost:3000`
-   - Create an account or sign in
-   - The extension will use your session to save content
+## Usage
 
-### For Production
+### Getting Started
 
-1. Build the extension:
-   ```bash
-   # Add build script to package.json if needed
-   npm run build:extension
-   ```
+1. **Click the ScrollMine extension icon** in your browser toolbar
+2. **Choose your mode**:
+   - **Local Mode**: Start saving content immediately (no signup)
+   - **Sign In**: Use your ScrollMine account for full features
 
-2. Load the built extension in Chrome as described above.
+### Saving Content
 
-## How to Use
+1. **Navigate to any webpage** you want to save
+2. **Open the extension** and review the captured information:
+   - Page title and URL (auto-captured)
+   - Selected text (if you highlighted any)
+   - Page content (for AI processing)
+3. **Add optional tags** for better organization
+4. **Click "Save Content"** to store it
 
-1. **Navigate to any webpage** you want to save content from
-2. **Select text** on the page (optional)
-3. **Click the ScrollMine extension icon** in your browser toolbar
-4. **Review the captured content** - the extension automatically captures:
-   - Page title
-   - Page URL
-   - Selected text (if any)
-5. **Add tags** to organize your content (optional)
-6. **Click "Save Content"** to save to your dashboard
-7. **Click "Dashboard"** to view all your saved content
+### Local Mode Features
+
+- **Immediate Use**: No account required
+- **Full Functionality**: Save, organize, and manage content
+- **Data Persistence**: Content saved in your browser
+- **Easy Upgrade**: Sign up anytime to sync your data
+- **Migration**: All local data transfers when you create an account
+
+### Authenticated Mode Features
+
+- **Cloud Sync**: Access content from any device
+- **AI Generation**: Create social media posts from saved content
+- **Advanced Analytics**: Track content performance
+- **Team Features**: Share and collaborate (coming soon)
+
+## Technical Details
+
+### Content Capture
+
+The extension intelligently captures:
+- **Page Metadata**: Title, URL, description, author, published date
+- **Content Type**: Automatically detects articles, tweets, videos, etc.
+- **Page Content**: Extracts main content for AI processing
+- **Selected Text**: User-highlighted text snippets
+
+### Storage
+
+#### Local Mode
+- Uses browser's localStorage
+- Data structure matches cloud version
+- Automatic migration to cloud when signing up
+- Data persists until browser data is cleared
+
+#### Authenticated Mode
+- Saves to ScrollMine cloud database
+- Real-time sync across devices
+- Backup and recovery options
+
+### Supported Platforms
+
+- **Social Media**: Twitter, LinkedIn, Facebook, Instagram
+- **Video Platforms**: YouTube, Vimeo
+- **Blog Platforms**: Medium, Substack, WordPress
+- **News Sites**: Most major news websites
+- **General Web**: Any webpage with content
+
+## Development
+
+### File Structure
+
+```
+extension/
+├── manifest.json          # Extension configuration
+├── popup.html            # Extension popup interface
+├── popup.js              # Popup functionality
+├── content.js            # Content script for page interaction
+├── background.js         # Background script
+├── supabase.js           # Supabase client configuration
+├── icons/                # Extension icons
+└── README.md            # This file
+```
+
+### Key Components
+
+#### `popup.js`
+- Main extension logic
+- Authentication handling
+- Content saving (local and cloud)
+- UI state management
+
+#### `content.js`
+- Page content extraction
+- Text selection handling
+- Metadata detection
+- Content type classification
+
+#### `supabase.js`
+- Supabase client setup
+- Authentication methods
+- Database operations
+
+### Local Storage Schema
+
+```javascript
+// Saved Items
+{
+  id: string,
+  title: string,
+  url: string,
+  snippet?: string,
+  content?: string,
+  tags: string[],
+  type: string,
+  created_at: string,
+  is_favorite: boolean,
+  usage_count: number,
+  last_used_at?: string
+}
+```
+
+## Configuration
+
+### Environment Variables
+
+Update these in `popup.js`:
+```javascript
+const DASHBOARD_URL = 'https://your-app.scrollmine.com/dashboard';
+const LOCAL_DASHBOARD_URL = 'https://your-app.scrollmine.com/local-dashboard';
+```
+
+### Supabase Configuration
+
+Update `supabase.js` with your Supabase credentials:
+```javascript
+const SUPABASE_URL = 'your-supabase-url';
+const SUPABASE_ANON_KEY = 'your-supabase-anon-key';
+```
 
 ## Troubleshooting
 
 ### Common Issues
 
-#### "Please log in to your ScrollMine dashboard first"
-- **Solution:** Go to `http://localhost:3000` and sign in to your account
-- The extension needs an active session to save content
+1. **Extension not loading**
+   - Check Chrome's developer console for errors
+   - Verify all files are present in the extension folder
+   - Ensure manifest.json is valid
 
-#### "Error checking authentication status"
-- **Solution:** Refresh the extension popup or restart your browser
-- This usually happens when the session expires
+2. **Content not saving**
+   - Check authentication status
+   - Verify Supabase configuration
+   - Check browser console for error messages
 
-#### "Content Security Policy violation"
-- **Solution:** The extension now uses a local Supabase bundle instead of CDN
-- If you still see this error, reload the extension in `chrome://extensions/`
-
-#### Extension not working on certain websites
-- **Solution:** The extension works on most websites, but some may block content scripts
-- Try refreshing the page or using the context menu option
+3. **Local mode not working**
+   - Ensure localStorage is enabled in browser
+   - Check for browser storage limits
+   - Verify extension permissions
 
 ### Debug Mode
 
-To enable debug logging:
-
-1. Open the extension popup
-2. Right-click and select "Inspect"
-3. Check the console for detailed error messages
-
-## File Structure
-
-```
-extension/
-├── manifest.json          # Extension configuration
-├── popup.html            # Extension popup UI
-├── popup.js              # Popup functionality
-├── content.js            # Content script for webpage interaction
-├── background.js         # Background service worker
-├── supabase-bundle.js    # Local Supabase client
-├── supabase.js           # Supabase configuration
-└── icons/                # Extension icons
+Enable debug logging by adding to `popup.js`:
+```javascript
+const DEBUG = true;
 ```
 
-## Configuration
+## Contributing
 
-### Supabase Setup
-
-The extension is configured to work with your Supabase project. Make sure:
-
-1. Your Supabase URL and anon key are correct in `supabase.js`
-2. The `saved_items` table exists in your Supabase database
-3. Row Level Security (RLS) is properly configured
-
-### Database Schema
-
-The extension expects a `saved_items` table with the following columns:
-
-```sql
-CREATE TABLE saved_items (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id),
-  url TEXT NOT NULL,
-  title TEXT NOT NULL,
-  snippet TEXT,
-  tags TEXT[],
-  type TEXT DEFAULT 'article',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-```
-
-## Development
-
-### Making Changes
-
-1. **Edit the files** in the `extension/` directory
-2. **Reload the extension** in `chrome://extensions/`
-3. **Test your changes** by clicking the extension icon
-
-### Adding New Features
-
-1. **UI Changes:** Edit `popup.html` and `popup.js`
-2. **Content Interaction:** Modify `content.js`
-3. **Background Tasks:** Update `background.js`
-4. **Database Operations:** Modify `supabase.js`
-
-## Security
-
-- The extension only requests necessary permissions
-- Authentication tokens are stored securely in Chrome's local storage
-- No sensitive data is logged or transmitted unnecessarily
-- Content Security Policy is properly configured
-
-## Support
-
-If you encounter issues:
-
-1. Check the troubleshooting section above
-2. Look at the browser console for error messages
-3. Ensure your dashboard is running and accessible
-4. Verify your Supabase configuration is correct
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
 ## License
 
-This extension is part of the ScrollMine project.
+This extension is part of the ScrollMine project and follows the same license terms.
+
+## Support
+
+For support and questions:
+- Check the main ScrollMine documentation
+- Open an issue on GitHub
+- Contact the development team
+
+---
+
+**Note**: This extension is designed to work with the ScrollMine web application. Make sure you have the web app running or configured to use the extension effectively.

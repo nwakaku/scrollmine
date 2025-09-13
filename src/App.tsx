@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './components/providers/AuthProvider'
 import HomePage from './pages/HomePage'
 import DashboardPage from './pages/DashboardPage'
+import LocalDashboardPage from './pages/LocalDashboardPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route path="/local-dashboard" element={<LocalDashboardPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       

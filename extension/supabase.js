@@ -1,6 +1,7 @@
 // Supabase configuration for browser extension
-const SUPABASE_URL = "https://vyxwxkexvveglzsxlwyc.supabase.co"
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eHd4a2V4dnZlZ2x6c3hsd3ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2MTEzMTQsImV4cCI6MjA3MjE4NzMxNH0.M1BkwS_2PoH4wGwLQtpCKcvMyvqgpIrkn3H3R1j6lxs"
+// Use existing configuration from config.js
+const SUPABASE_URL = window.ScrollMineConfig?.SUPABASE_URL || "https://vyxwxkexvveglzsxlwyc.supabase.co";
+const SUPABASE_ANON_KEY = window.ScrollMineConfig?.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eHd4a2V4dnZlZ2x6c3hsd3ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2MTEzMTQsImV4cCI6MjA3MjE4NzMxNH0.M1BkwS_2PoH4wGwLQtpCKcvMyvqgpIrkn3H3R1j6lxs";
 
 // Direct API implementation for browser extension
 class ScrollMineAPI {
@@ -29,6 +30,9 @@ class ScrollMineAPI {
   // Sign in user
   async signIn({ email, password }) {
     try {
+      console.log('Supabase signIn called with:', { email, password: '***' });
+      console.log('Using URL:', `${this.url}/auth/v1/token?grant_type=password`);
+      
       const response = await fetch(`${this.url}/auth/v1/token?grant_type=password`, {
         method: 'POST',
         headers: {
@@ -39,10 +43,26 @@ class ScrollMineAPI {
         body: JSON.stringify({ email, password })
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('HTTP Error:', response.status, errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
       const data = await response.json();
+      console.log('Response data:', data);
       
       if (data.error) {
+        console.error('Supabase error:', data.error);
         throw new Error(data.error_description || data.error);
+      }
+
+      if (!data.access_token) {
+        console.error('No access token in response:', data);
+        throw new Error('No access token received from server');
       }
 
       // Store session
@@ -55,6 +75,7 @@ class ScrollMineAPI {
         }
       });
 
+      console.log('Session stored successfully');
       return { data: { session: data, user: data.user }, error: null };
     } catch (error) {
       console.error('Sign in error:', error);

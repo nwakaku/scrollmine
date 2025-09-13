@@ -1,6 +1,8 @@
 // Server-side API endpoint for AI content generation
 // This keeps the Gemini API key secure on the server
 
+import { GoogleGenAI } from "@google/genai";
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
@@ -14,44 +16,31 @@ export default async function handler(req, res) {
     }
 
     // Get Gemini API key from environment variable
-    const geminiApiKey = process.env.GEMINI_API_KEY;
+    const geminiApiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
     
     if (!geminiApiKey) {
       console.error('GEMINI_API_KEY not found in environment variables');
       return res.status(500).json({ message: 'AI service not configured' });
     }
 
-    // Call Gemini 2.0 Flash API
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-goog-api-key': geminiApiKey
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }]
-      })
+    // Initialize Google GenAI
+    const ai = new GoogleGenAI({ apiKey: geminiApiKey });
+
+    // Generate content using the new SDK
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash-exp",
+      contents: prompt,
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 1024,
+      }
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Gemini API error:', errorData);
-      return res.status(response.status).json({ 
-        message: `AI generation failed: ${errorData.error?.message || 'Unknown error'}` 
-      });
-    }
-
-    const data = await response.json();
-    
-    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-      const generatedContent = data.candidates[0].content.parts[0].text.trim();
-      
+    if (response && response.text) {
       return res.status(200).json({ 
-        content: generatedContent,
+        content: response.text.trim(),
         platform,
         timestamp: new Date().toISOString()
       });

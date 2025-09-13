@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 import { SavedItemsList } from '@/components/dashboard/SavedItemsList'
@@ -8,18 +8,31 @@ import {
   BookmarkIcon, 
   SparklesIcon, 
   ChartBarIcon,
-  PlusIcon
+  PlusIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline'
+import { localStorageUtils } from '@/lib/localStorage'
 
 export default function DashboardPage() {
-  const { user } = useAuth()
+  const { user, migrateLocalData } = useAuth()
   const [activeTab, setActiveTab] = useState<'saved' | 'generate' | 'analytics'>('saved')
+  const [showMigrationPrompt, setShowMigrationPrompt] = useState(false)
 
   const tabs = [
     { id: 'saved', name: 'Saved Items', icon: BookmarkIcon },
     { id: 'generate', name: 'Generate Content', icon: SparklesIcon },
     { id: 'analytics', name: 'Analytics', icon: ChartBarIcon },
   ]
+
+  useEffect(() => {
+    // Check if there's local data to migrate
+    const localItems = localStorageUtils.getSavedItems()
+    const localContent = localStorageUtils.getGeneratedContent()
+    
+    if (localItems.length > 0 || localContent.length > 0) {
+      setShowMigrationPrompt(true)
+    }
+  }, [])
 
   return (
     <DashboardLayout>
@@ -29,16 +42,57 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex items-center justify-between"
+          className="space-y-4"
         >
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-1">Welcome back, {user?.email}</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+              <p className="text-gray-600 mt-1">Welcome back, {user?.email}</p>
+            </div>
+            <button className="btn-primary flex items-center space-x-2">
+              <PlusIcon className="w-5 h-5" />
+              <span>Add Item</span>
+            </button>
           </div>
-          <button className="btn-primary flex items-center space-x-2">
-            <PlusIcon className="w-5 h-5" />
-            <span>Add Item</span>
-          </button>
+
+          {/* Migration Prompt */}
+          {showMigrationPrompt && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="bg-green-50 border border-green-200 rounded-lg p-4"
+            >
+              <div className="flex items-start space-x-3">
+                <ExclamationTriangleIcon className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="text-sm font-medium text-green-800">
+                    Local Data Found
+                  </h3>
+                  <p className="text-sm text-green-700 mt-1">
+                    We found some data from your local demo. Would you like to migrate it to your account?
+                  </p>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={async () => {
+                      await migrateLocalData()
+                      setShowMigrationPrompt(false)
+                    }}
+                    className="btn-primary text-sm px-4 py-2"
+                  >
+                    Migrate Data
+                  </button>
+                  <button
+                    onClick={() => setShowMigrationPrompt(false)}
+                    className="btn-secondary text-sm px-4 py-2"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Tabs */}

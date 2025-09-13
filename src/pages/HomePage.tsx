@@ -127,8 +127,14 @@ export default function HomePage() {
                 <ArrowRightIcon className="w-5 h-5" />
               </button>
               <button 
-                onClick={() => setShowSignUp(false)}
+                onClick={() => navigate('/local-dashboard')}
                 className="btn-secondary text-lg px-8 py-4"
+              >
+                Try Demo
+              </button>
+              <button 
+                onClick={() => setShowSignUp(false)}
+                className="btn-outline text-lg px-8 py-4"
               >
                 Sign In
               </button>
