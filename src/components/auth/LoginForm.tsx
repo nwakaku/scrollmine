@@ -3,6 +3,9 @@ import { useAuth } from '@/components/providers/AuthProvider'
 import { toast } from 'react-hot-toast'
 import { motion } from 'framer-motion'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 export function LoginForm() {
   const { signIn } = useAuth()
@@ -39,52 +42,54 @@ export function LoginForm() {
       transition={{ duration: 0.3 }}
     >
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+        <Label htmlFor="email" className="text-sm font-medium text-gray-700">
           Email Address
-        </label>
-        <input
+        </Label>
+        <Input
           id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="input-field"
           placeholder="Enter your email"
           required
+          className="mt-2"
         />
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+        <Label htmlFor="password" className="text-sm font-medium text-gray-700">
           Password
-        </label>
-        <div className="relative">
-          <input
+        </Label>
+        <div className="relative mt-2">
+          <Input
             id="password"
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="input-field pr-10"
             placeholder="Enter your password"
             required
+            className="pr-10"
           />
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center h-auto"
           >
             {showPassword ? (
               <EyeSlashIcon className="h-5 w-5 text-gray-400" />
             ) : (
               <EyeIcon className="h-5 w-5 text-gray-400" />
             )}
-          </button>
+          </Button>
         </div>
       </div>
 
-      <button
+      <Button
         type="submit"
         disabled={loading}
-        className="w-full btn-primary py-3 text-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full py-3 text-lg font-medium"
       >
         {loading ? (
           <div className="flex items-center justify-center space-x-2">
@@ -94,7 +99,7 @@ export function LoginForm() {
         ) : (
           'Sign In'
         )}
-      </button>
+      </Button>
     </motion.form>
   )
 }
