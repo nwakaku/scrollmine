@@ -13,7 +13,6 @@ import {
   HeartIcon,
   FunnelIcon,
   CalendarIcon,
-  StarIcon,
   ClockIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline'
@@ -165,29 +164,6 @@ export function SavedItemsList() {
     }
   }
 
-  const getSortLabel = (sort: SortOption) => {
-    switch (sort) {
-      case 'date_saved': return 'Date Saved'
-      case 'date_used': return 'Last Used'
-      case 'usage_count': return 'Most Used'
-      case 'favorites': return 'Favorites First'
-      case 'title': return 'Title A-Z'
-      default: return 'Date Saved'
-    }
-  }
-
-  const getFilterLabel = (filter: FilterOption) => {
-    switch (filter) {
-      case 'all': return 'All Items'
-      case 'favorites': return 'Favorites'
-      case 'used': return 'Used for AI'
-      case 'unused': return 'Not Used'
-      case 'article': return 'Articles'
-      case 'tweet': return 'Tweets'
-      case 'video': return 'Videos'
-      default: return 'All Items'
-    }
-  }
 
   if (loading) {
     return (

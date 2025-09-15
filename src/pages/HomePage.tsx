@@ -10,8 +10,7 @@ import {
   CheckCircleIcon,
   CalendarIcon,
   UserGroupIcon,
-  PlayIcon,
-  BookmarkIcon
+  PlayIcon
 } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'

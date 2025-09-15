@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { localStorageUtils, LocalSavedItem, LocalGeneratedContent } from '@/lib/localStorage';
 import { toast } from 'react-hot-toast';
-import { Copy, Save, Trash2, Sparkles, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Copy, Trash2, Sparkles, AlertTriangle, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 type Platform = 'twitter' | 'linkedin' | 'instagram' | 'general';
@@ -12,7 +12,6 @@ const LocalContentGenerator: React.FC = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [platform, setPlatform] = useState<Platform>('twitter');
   const [generatedContent, setGeneratedContent] = useState<LocalGeneratedContent[]>([]);
-  const [generating, setGenerating] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -60,33 +59,6 @@ const LocalContentGenerator: React.FC = () => {
     navigate('/');
   };
 
-  const generateAIContent = async (items: LocalSavedItem[], platform: string): Promise<string> => {
-    // This function won't be called in local mode, but keeping for future reference
-    const contentForAI = items.map(item => {
-      let itemContent = `Title: ${item.title}\n`;
-      if (item.snippet) itemContent += `Snippet: ${item.snippet}\n`;
-      if (item.content) itemContent += `Content: ${item.content.substring(0, 1000)}...\n`;
-      if (item.tags && item.tags.length > 0) itemContent += `Tags: ${item.tags.join(', ')}\n`;
-      return itemContent;
-    }).join('\n---\n');
-
-    const platformPrompts = {
-      twitter: `Create an engaging Twitter post based on this content. Make it conversational, include relevant hashtags, and keep it under 280 characters. Focus on the most interesting insights and make it shareable.`,
-      linkedin: `Create a professional LinkedIn post based on this content. Make it insightful, include bullet points for key takeaways, and encourage professional discussion. Keep it professional but engaging.`,
-      instagram: `Create an Instagram caption based on this content. Make it visually descriptive, include emojis, and encourage engagement. Focus on inspiration and community.`,
-      general: `Create a general social media post based on this content. Make it engaging and shareable across different platforms. Include key insights and encourage discussion.`
-    };
-
-    const prompt = `${platformPrompts[platform as keyof typeof platformPrompts]}
-
-Content to analyze:
-${contentForAI}
-
-Generate a ${platform} post:`;
-
-    // This would normally call the AI API, but in local mode we'll return a placeholder
-    return `[AI-generated content would appear here for ${platform} platform]`;
-  };
 
   const copyToClipboard = async (content: string) => {
     try {
