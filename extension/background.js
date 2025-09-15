@@ -167,11 +167,19 @@ async function handleSaveContent(data) {
     if (session && session.expires_at && new Date(session.expires_at) > new Date()) {
       console.log('User is authenticated, saving to Supabase');
       // User is authenticated, save to Supabase
-      const response = await fetch('https://vyxwxkexvveglzsxlwyc.supabase.co/rest/v1/saved_items', {
+      const supabaseUrl = "https://vyxwxkexvveglzsxlwyc.supabase.co";
+      const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eHd4a2V4dnZlZ2x6c3hsd3ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2MTEzMTQsImV4cCI6MjA3MjE4NzMxNH0.M1BkwS_2PoH4wGwLQtpCKcvMyvqgpIrkn3H3R1j6lxs";
+      
+      if (!supabaseUrl || !supabaseKey) {
+        console.error('Supabase configuration not found');
+        return;
+      }
+      
+      const response = await fetch(`${supabaseUrl}/rest/v1/saved_items`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eHd4a2V4dnZlZ2x6c3hsd3ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2MTEzMTQsImV4cCI6MjA3MjE4NzMxNH0.M1BkwS_2PoH4wGwLQtpCKcvMyvqgpIrkn3H3R1j6lxs',
+          'apikey': supabaseKey,
           'Authorization': `Bearer ${session.access_token}`,
           'Prefer': 'return=representation'
         },

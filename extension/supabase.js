@@ -1,7 +1,11 @@
 // Supabase configuration for browser extension
 // Use existing configuration from config.js
-const SUPABASE_URL = window.ScrollMineConfig?.SUPABASE_URL || "https://vyxwxkexvveglzsxlwyc.supabase.co";
-const SUPABASE_ANON_KEY = window.ScrollMineConfig?.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eHd4a2V4dnZlZ2x6c3hsd3ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2MTEzMTQsImV4cCI6MjA3MjE4NzMxNH0.M1BkwS_2PoH4wGwLQtpCKcvMyvqgpIrkn3H3R1j6lxs";
+const SUPABASE_URL = window.ScrollMineConfig?.SUPABASE_URL;
+const SUPABASE_ANON_KEY = window.ScrollMineConfig?.SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('Supabase configuration not found in ScrollMineConfig');
+}
 
 // Direct API implementation for browser extension
 class ScrollMineAPI {

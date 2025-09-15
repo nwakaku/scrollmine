@@ -15,6 +15,10 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import { demoData } from '@/lib/demoData'
+import Header from '@/components/layout/Header'
+
+
+
 
 export default function LocalDashboardPage() {
   const { user } = useAuth()
@@ -50,6 +54,9 @@ export default function LocalDashboardPage() {
   }
 
   return (
+    <>
+        <Header />
+    
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header with Warning */}
@@ -165,5 +172,7 @@ export default function LocalDashboardPage() {
         </motion.div>
       </div>
     </DashboardLayout>
+
+    </>
   )
 }

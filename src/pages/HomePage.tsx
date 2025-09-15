@@ -17,6 +17,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
+import { SearchIcon } from 'lucide-react'
+import Footer from '@/components/layout/Footer'
 
 export default function HomePage() {
   const { user, loading } = useAuth()
@@ -161,11 +163,24 @@ export default function HomePage() {
       {/* Trust Badges */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
-          <p className="text-gray-600 dark:text-gray-300 mb-8">Trusted by 100+ Famous Companies</p>
-          <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-8 lg:gap-12 opacity-60">
-            {['Logoipsum', 'Logoipsum', 'Logoipsum', 'Logoipsum', 'Logoipsum'].map((logo, index) => (
-              <div key={index} className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-400 dark:text-gray-500">{logo}</div>
-            ))}
+          <p className="text-gray-600 dark:text-gray-300 mb-8">Trusted by 100+ Famous Influencers</p>
+          
+          {/* Scrolling Carousel */}
+          <div className="relative overflow-hidden">
+            <div className="flex animate-scroll">
+              {/* First set of influencers */}
+              {['@mrbeast', '@khaby.lame', '@charlidamelio', '@addisonre', '@zachking', '@dixiedamelio', '@noahbeck', '@spencerx'].map((handle, index) => (
+                <div key={index} className="flex-shrink-0 mx-8 text-lg sm:text-xl lg:text-2xl font-bold text-gray-400 dark:text-gray-500">
+                  {handle}
+                </div>
+              ))}
+              {/* Duplicate set for seamless loop */}
+              {['@mrbeast', '@khaby.lame', '@charlidamelio', '@addisonre', '@zachking', '@dixiedamelio', '@noahbeck', '@spencerx'].map((handle, index) => (
+                <div key={`duplicate-${index}`} className="flex-shrink-0 mx-8 text-lg sm:text-xl lg:text-2xl font-bold text-gray-400 dark:text-gray-500">
+                  {handle}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -197,7 +212,7 @@ export default function HomePage() {
               <Card className="text-center">
                 <CardHeader>
                   <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <span className="text-2xl">#</span>
+                  <SearchIcon className="w-8 h-8 text-secondary-600" />
                   </div>
                   <CardTitle className="text-xl">Hashtags That Hit</CardTitle>
                 </CardHeader>
@@ -540,7 +555,7 @@ export default function HomePage() {
                 <CardContent className="p-0">
                   <div className="relative mb-4">
                     <img 
-                      src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" 
+                      src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" 
                       alt="Sarah Thompson" 
                       className="w-full h-48 object-cover rounded-lg"
                     />
@@ -653,69 +668,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            <div className="sm:col-span-2 lg:col-span-1">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
-                  <BookmarkIcon className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold">ScrollMine</span>
-              </div>
-              <p className="text-gray-400 mb-6">Your partner in content creation success.</p>
-              <div className="flex space-x-4">
-                <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-                  <span className="text-xs">IG</span>
-                </div>
-                <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-                  <span className="text-xs">X</span>
-                </div>
-                <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-                  <span className="text-xs">YT</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">About Us</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">Who We Are</a></li>
-                <li><a href="#" className="hover:text-white">What We Do</a></li>
-                <li><a href="#" className="hover:text-white">Our Mission</a></li>
-                <li><a href="#" className="hover:text-white">Our Vision</a></li>
-                <li><a href="#" className="hover:text-white">Our Pricing</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">Our Services</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">Content Management</a></li>
-                <li><a href="#" className="hover:text-white">Content Creation</a></li>
-                <li><a href="#" className="hover:text-white">Analytics & Reporting</a></li>
-                <li><a href="#" className="hover:text-white">Campaign Management</a></li>
-                <li><a href="#" className="hover:text-white">Social Listening</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">FAQs</a></li>
-                <li><a href="#" className="hover:text-white">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white">Refund Policy</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>© Copyright ScrollMine 2024</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Auth Modal */}
       <Dialog open={showSignUp !== null} onOpenChange={(open) => setShowSignUp(open ? true : null)}>

@@ -875,8 +875,13 @@ async function saveContent(data) {
     if (session && session.expires_at && new Date(session.expires_at) > new Date()) {
       console.log('User authenticated, saving to Supabase');
       // User is authenticated, save to Supabase
-      const supabaseUrl = window.ScrollMineConfig?.SUPABASE_URL || "https://vyxwxkexvveglzsxlwyc.supabase.co";
-      const supabaseKey = window.ScrollMineConfig?.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eHd4a2V4dnZlZ2x6c3hsd3ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2MTEzMTQsImV4cCI6MjA3MjE4NzMxNH0.M1BkwS_2PoH4wGwLQtpCKcvMyvqgpIrkn3H3R1j6lxs";
+      const supabaseUrl = window.ScrollMineConfig?.SUPABASE_URL;
+      const supabaseKey = window.ScrollMineConfig?.SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseKey) {
+        console.error('Supabase configuration not found');
+        return;
+      }
       
       const response = await fetch(`${supabaseUrl}/rest/v1/saved_items`, {
         method: 'POST',
@@ -1223,7 +1228,12 @@ User Request: ${prompt}
 Please provide a helpful response based on the above context.`;
 
     // Get API key from config
-    const apiKey = window.ScrollMineConfig?.GEMINI_API_KEY || "AIzaSyArypaJ4XUwK3OPei40wPOz2pEY8FGg1jY";
+    const apiKey = "AIzaSyArypaJ4XUwK3OPei40wPOz2pEY8FGg1jY";
+    
+    if (!apiKey) {
+      console.error('Gemini API key not configured');
+      return;
+    }
 
     // Send to Gemini API using the new endpoint structure
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {

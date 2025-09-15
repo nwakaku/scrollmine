@@ -24,9 +24,9 @@ if (fs.existsSync(envPath)) {
 
 // Default values if env file doesn't exist
 const config = {
-  SUPABASE_URL: envVars.VITE_SUPABASE_URL || "https://vyxwxkexvveglzsxlwyc.supabase.co",
-  SUPABASE_ANON_KEY: envVars.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eHd4a2V4dnZlZ2x6c3hsd3ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2MTEzMTQsImV4cCI6MjA3MjE4NzMxNH0.M1BkwS_2PoH4wGwLQtpCKcvMyvqgpIrkn3H3R1j6lxs",
-  GEMINI_API_KEY: envVars.VITE_GEMINI_API_KEY || envVars.GEMINI_API_KEY || "AIzaSyArypaJ4XUwK3OPei40wPOz2pEY8FGg1jY",
+  SUPABASE_URL: envVars.VITE_SUPABASE_URL || envVars.SUPABASE_URL,
+  SUPABASE_ANON_KEY: envVars.VITE_SUPABASE_ANON_KEY || envVars.SUPABASE_ANON_KEY,
+  GEMINI_API_KEY: envVars.VITE_GEMINI_API_KEY || envVars.GEMINI_API_KEY,
   APP_NAME: "Daydream Movies"
 };
 

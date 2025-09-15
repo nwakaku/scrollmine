@@ -1,5 +1,4 @@
 import { useAuth } from '@/components/providers/AuthProvider'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { motion } from 'framer-motion'
 import { 
   BookmarkIcon, 
@@ -8,10 +7,10 @@ import {
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   UserCircleIcon,
-  Bars3Icon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
 import { useState } from 'react'
+import Header from '../layout/Header'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -37,47 +36,25 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
-              <BookmarkIcon className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-              ScrollMine
-            </span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <ThemeToggle />
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700 transition-colors"
-              aria-label="Toggle mobile menu"
-            >
-              {isMobileMenuOpen ? (
-                <XMarkIcon className="w-6 h-6" />
-              ) : (
-                <Bars3Icon className="w-6 h-6" />
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Header */}
+      <Header onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
 
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="flex items-center space-x-2 px-6 py-6 border-b border-gray-200 dark:border-gray-700">
-            <div className="w-8 h-8 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
-              <BookmarkIcon className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-              ScrollMine
+          {/* Sidebar Header */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <span className="text-lg font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+              Daydream Movies
             </span>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="lg:hidden p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              <XMarkIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            </button>
           </div>
 
           {/* Navigation */}
@@ -129,10 +106,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content Container */}
       <div className="lg:pl-64">
-        <main className="pt-16 lg:pt-0 p-4 sm:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <main className="pt-20 lg:pt-0">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
             {children}
           </div>
         </main>
